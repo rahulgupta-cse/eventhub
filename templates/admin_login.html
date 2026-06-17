@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Admin Login — EventHub{% endblock %}
+
+{% block body %}
+<div class="login-page">
+  <div class="login-split">
+
+    <!-- Left panel -->
+    <div class="login-left">
+      <div class="ll-logo">Event<span style="color:rgba(255,255,255,0.7)">Hub</span></div>
+      <h2>College Event Management System</h2>
+      <p>Manage events, track registrations, and record attendance with QR-based check-in — all in one place.</p>
+      <div class="ll-features">
+        <div class="ll-feature"><div class="ll-dot"></div> Create and manage campus events</div>
+        <div class="ll-feature"><div class="ll-dot"></div> QR code generation for students</div>
+        <div class="ll-feature"><div class="ll-dot"></div> Real-time attendance tracking</div>
+        <div class="ll-feature"><div class="ll-dot"></div> Export reports as CSV or PDF</div>
+      </div>
+    </div>
+
+    <!-- Right panel -->
+    <div class="login-right">
+      <div class="lock-icon">🔐</div>
+      <h1>Admin Login</h1>
+      <p class="sub">Access the event management panel</p>
+
+      {% if error %}
+      <div class="alert alert-error">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>
+        </svg>
+        {{ error }}
+      </div>
+      {% endif %}
+
+      <form method="POST" style="display:flex;flex-direction:column;gap:4px">
+        <div class="form-group">
+          <label class="form-label">Username</label>
+          <input type="text" name="username" class="form-control" placeholder="Enter username" required autofocus/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" name="password" class="form-control" placeholder="••••••••" required/>
+        </div>
+        <div style="height:8px"></div>
+        <button type="submit" class="btn btn-primary btn-full btn-lg">
+          Sign In
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </button>
+      </form>
+
+      <div class="login-hint">
+        Default credentials: <code>admin</code> / <code>admin123</code>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

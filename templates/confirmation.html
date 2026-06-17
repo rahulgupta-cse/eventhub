@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Registered! — EventHub{% endblock %}
+
+{% block body %}
+
+<nav class="top-navbar">
+  <a href="{{ url_for('index') }}" class="nav-logo">Event<span>Hub</span></a>
+  <div class="nav-links">
+    <a href="{{ url_for('index') }}">Browse Events</a>
+  </div>
+</nav>
+
+<div class="confirmation-wrap">
+
+  <div class="success-ring">✅</div>
+  <h1>Registration Confirmed!</h1>
+  <p class="sub">You're all set for <strong>{{ reg.event_name }}</strong>. Show your QR code at entry.</p>
+
+  <!-- Ticket -->
+  <div class="ticket-card">
+    <div class="ticket-header">
+      <div class="t-label">Event Pass</div>
+      <div class="t-id">#{{ '%04d' % reg.id }}</div>
+    </div>
+    <div class="ticket-body">
+      <div class="ticket-info">
+        <div class="ticket-row">
+          <span class="tk-label">Name</span>
+          <span class="tk-val">{{ reg.student_name }}</span>
+        </div>
+        <div class="ticket-row">
+          <span class="tk-label">College ID</span>
+          <span class="tk-val">{{ reg.college_id }}</span>
+        </div>
+        <div class="ticket-row">
+          <span class="tk-label">Event</span>
+          <span class="tk-val">{{ reg.event_name }}</span>
+        </div>
+        <div class="ticket-row">
+          <span class="tk-label">Date</span>
+          <span class="tk-val">{{ reg.date }}</span>
+        </div>
+        <div class="ticket-row">
+          <span class="tk-label">Time</span>
+          <span class="tk-val">{{ reg.time }}</span>
+        </div>
+        <div class="ticket-row">
+          <span class="tk-label">Venue</span>
+          <span class="tk-val">{{ reg.venue }}</span>
+        </div>
+      </div>
+
+      <div class="ticket-qr-side">
+        <img src="{{ url_for('get_qr', reg_id=reg.id) }}" alt="QR Code" />
+        <p>Scan at entry</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="conf-actions">
+    <a href="{{ url_for('get_qr', reg_id=reg.id) }}" download="event_pass_{{ reg.id }}.png" class="btn btn-primary btn-lg">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+      </svg>
+      Download QR Code
+    </a>
+    <a href="{{ url_for('index') }}" class="btn btn-secondary btn-lg">Browse More Events</a>
+  </div>
+
+  <div class="reminder">
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="flex-shrink:0;margin-top:1px">
+      <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+      <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+    </svg>
+    <span><strong>Remember:</strong> Save or screenshot your QR code. You'll need to show it at the event entrance for entry.</span>
+  </div>
+
+</div>
+
+<footer>© 2024 EventHub — College Event Management System</footer>
+{% endblock %}

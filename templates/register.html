@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block title %}Register — {{ event.name }}{% endblock %}
+
+{% block body %}
+
+<nav class="top-navbar">
+  <a href="{{ url_for('index') }}" class="nav-logo">Event<span>Hub</span></a>
+  <div class="nav-links">
+    <a href="{{ url_for('index') }}">← Back to Events</a>
+  </div>
+</nav>
+
+<div class="register-page">
+
+  <!-- Sidebar info -->
+  <div class="reg-sidebar">
+    <div class="card">
+      <div class="card-body" style="padding:24px">
+        <div style="height:6px;background:linear-gradient(90deg,var(--primary),var(--secondary));border-radius:4px;margin-bottom:18px"></div>
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:6px">{{ event.name }}</h3>
+        {% if event.description %}
+        <p class="event-desc" style="font-size:12px;color:var(--text-2);margin-bottom:18px;line-height:1.6">{{ event.description }}</p>
+        {% endif %}
+
+        <div class="reg-detail">
+          <div class="reg-detail-icon">📅</div>
+          <div>
+            <div class="reg-detail-label">Date</div>
+            <div class="reg-detail-value">{{ event.date }}</div>
+          </div>
+        </div>
+        <div class="reg-detail">
+          <div class="reg-detail-icon">⏰</div>
+          <div>
+            <div class="reg-detail-label">Time</div>
+            <div class="reg-detail-value">{{ event.time }}</div>
+          </div>
+        </div>
+        <div class="reg-detail">
+          <div class="reg-detail-icon">📍</div>
+          <div>
+            <div class="reg-detail-label">Venue</div>
+            <div class="reg-detail-value">{{ event.venue }}</div>
+          </div>
+        </div>
+        <div class="reg-detail">
+          <div class="reg-detail-icon">👥</div>
+          <div>
+            <div class="reg-detail-label">Capacity</div>
+            <div class="reg-detail-value">{{ reg_count }} / {{ event.max_participants }} registered</div>
+          </div>
+        </div>
+
+        <div class="qr-promo">
+          <div class="qr-icon">▦</div>
+          <p>You'll receive a unique QR code after registration for seamless entry at the event.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form -->
+  <div class="reg-form-card">
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <h2 style="font-size:18px;font-weight:700">Register for Event</h2>
+          <p style="font-size:12px;color:var(--text-2);margin-top:3px">Fill in your details to secure your spot</p>
+        </div>
+      </div>
+      <div class="card-body" style="padding:28px">
+
+        {% if error %}
+        <div class="alert alert-error">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>
+          </svg>
+          {{ error }}
+        </div>
+        {% endif %}
+
+        <form method="POST">
+          <div class="form-group">
+            <label class="form-label">Full Name *</label>
+            <input type="text" name="name" class="form-control" placeholder="e.g. Arjun Sharma" required/>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Email Address *</label>
+            <input type="email" name="email" class="form-control" placeholder="you@college.edu" required/>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Phone Number *</label>
+              <input type="tel" name="phone" class="form-control" placeholder="+91 98765 43210" required/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">College ID *</label>
+              <input type="text" name="college_id" class="form-control" placeholder="e.g. CS2024001" required/>
+            </div>
+          </div>
+
+          <div style="background:var(--surface2);border-radius:8px;padding:12px 14px;margin-bottom:20px;font-size:12px;color:var(--text-2);display:flex;gap:8px;align-items:flex-start">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="flex-shrink:0;margin-top:1px">
+              <circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>
+            </svg>
+            Your information is used only for event registration. A QR code will be generated for you.
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-full btn-lg">
+            Complete Registration
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>© 2024 EventHub — College Event Management System</footer>
+{% endblock %}

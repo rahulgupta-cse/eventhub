@@ -1,0 +1,197 @@
+{% extends "admin_base.html" %}
+{% block title %}QR Check-in — EventHub{% endblock %}
+{% block topbar_title %}QR Code Check-in{% endblock %}
+
+{% block head %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <h1>QR Code Check-in</h1>
+    <p>Scan student QR codes to record attendance in real time</p>
+  </div>
+</div>
+
+<div class="checkin-grid">
+
+  <!-- Scanner Card -->
+  <div class="card">
+    <div class="card-header">
+      <h2>
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="display:inline;vertical-align:middle;margin-right:4px">
+          <path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/>
+        </svg>
+        Scanner
+      </h2>
+      <span id="scanStatus" class="badge badge-absent">Camera Off</span>
+    </div>
+    <div class="card-body">
+
+      <div class="scanner-area" id="scannerArea">
+        <div class="scanner-placeholder" id="scannerPlaceholder">
+          <div class="scan-icon">▦</div>
+          <p>Camera not started</p>
+          <p style="font-size:11px;margin-top:4px">Click the button below to begin scanning</p>
+        </div>
+        <div id="reader" style="width:100%;display:none"></div>
+      </div>
+
+      <div style="display:flex;gap:10px;margin-top:16px">
+        <button id="startBtn" class="btn btn-primary btn-lg" onclick="startScan()" style="flex:1">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/>
+          </svg>
+          Start Camera
+        </button>
+        <button id="stopBtn" class="btn btn-secondary btn-lg" onclick="stopScan()" style="flex:1;display:none">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <rect x="3" y="3" width="18" height="18" rx="2"/>
+          </svg>
+          Stop Camera
+        </button>
+      </div>
+
+      <!-- Manual entry -->
+      <div class="manual-section">
+        <h4>Manual QR Entry</h4>
+        <div class="manual-row">
+          <input type="text" id="manualInput" class="form-control" placeholder='{"registration_id":1,"event_id":1}'/>
+          <button class="btn btn-secondary" onclick="verifyManual()">Verify</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Result Card -->
+  <div class="card">
+    <div class="card-header">
+      <h2>
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="display:inline;vertical-align:middle;margin-right:4px">
+          <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+        </svg>
+        Result
+      </h2>
+    </div>
+    <div class="card-body">
+
+      <div class="result-box" id="resultBox">
+        <div class="result-idle">
+          <div class="idle-icon">▦</div>
+          <p>Waiting for scan...</p>
+          <p style="font-size:11px;color:var(--text-3);margin-top:4px">Scan a QR code to see result here</p>
+        </div>
+      </div>
+
+      <!-- Recent check-ins log -->
+      <div class="log-section">
+        <h4>Recent Check-ins</h4>
+        <ul class="log-list" id="logList">
+          <li class="log-empty">No check-ins yet</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+let scanner = null;
+let isRunning = false;
+let lastScan = '';
+
+function startScan() {
+  document.getElementById('startBtn').style.display = 'none';
+  document.getElementById('stopBtn').style.display = 'flex';
+  document.getElementById('reader').style.display = 'block';
+  document.getElementById('scannerPlaceholder').style.display = 'none';
+  document.getElementById('scanStatus').textContent = 'Live';
+  document.getElementById('scanStatus').className = 'badge badge-active';
+
+  scanner = new Html5Qrcode('reader');
+  scanner.start(
+    { facingMode: 'environment' },
+    { fps: 10, qrbox: { width: 220, height: 220 } },
+    (decoded) => {
+      if (decoded !== lastScan) {
+        lastScan = decoded;
+        verifyQR(decoded);
+        setTimeout(() => lastScan = '', 3000);
+      }
+    },
+    () => {}
+  ).catch(err => {
+    showResult('error', '❌', 'Camera Error', err.toString(), '');
+    stopScan();
+  });
+  isRunning = true;
+}
+
+function stopScan() {
+  if (scanner && isRunning) scanner.stop().catch(() => {});
+  isRunning = false;
+  document.getElementById('startBtn').style.display = 'flex';
+  document.getElementById('stopBtn').style.display = 'none';
+  document.getElementById('reader').style.display = 'none';
+  document.getElementById('scannerPlaceholder').style.display = 'block';
+  document.getElementById('scanStatus').textContent = 'Camera Off';
+  document.getElementById('scanStatus').className = 'badge badge-absent';
+}
+
+function verifyManual() {
+  const val = document.getElementById('manualInput').value.trim();
+  if (val) verifyQR(val);
+}
+
+async function verifyQR(qrData) {
+  const res = await fetch('/admin/checkin/verify', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ qr_data: qrData })
+  });
+  const data = await res.json();
+
+  if (data.status === 'success') {
+    showResult('success', '✅', 'Entry Allowed', data.name, data.college_id + ' — ' + data.event);
+    addLog('✅', data.name, data.college_id, 'success');
+  } else if (data.status === 'duplicate') {
+    showResult('warning', '⚠️', 'Already Checked In', data.message, '');
+    addLog('⚠️', data.message, '', 'warning');
+  } else {
+    showResult('error', '❌', 'Invalid QR', data.message, '');
+    addLog('❌', data.message, '', 'error');
+  }
+}
+
+function showResult(type, icon, title, name, sub) {
+  const box = document.getElementById('resultBox');
+  const cls = type === 'success' ? 'result-success-box' : type === 'warning' ? 'result-warning-box' : 'result-error-box';
+  box.className = 'result-box ' + cls;
+  box.innerHTML = `
+    <div>
+      <div class="result-big">${icon}</div>
+      <h3>${title}</h3>
+      <p style="margin-top:6px;font-size:14px;font-weight:600">${name}</p>
+      ${sub ? `<p style="font-size:12px;margin-top:4px;opacity:0.8">${sub}</p>` : ''}
+    </div>`;
+}
+
+function addLog(icon, name, id, type) {
+  const list = document.getElementById('logList');
+  const empty = list.querySelector('.log-empty');
+  if (empty) empty.remove();
+  const li = document.createElement('li');
+  li.className = `log-item log-${type}`;
+  li.innerHTML = `<span>${icon}</span><span style="flex:1">${name}${id ? ' — ' + id : ''}</span><span class="log-time">${new Date().toLocaleTimeString()}</span>`;
+  list.prepend(li);
+  while (list.children.length > 8) list.removeChild(list.lastChild);
+}
+</script>
+{% endblock %}

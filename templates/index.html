@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% block title %}EventHub — Campus Events{% endblock %}
+
+{% block body %}
+
+<!-- Top Navbar -->
+<nav class="top-navbar">
+  <a href="{{ url_for('index') }}" class="nav-logo">Event<span>Hub</span></a>
+  <div class="nav-links">
+    <a href="{{ url_for('index') }}" class="active">Events</a>
+    {% if session.get('admin_logged_in') %}
+      <a href="{{ url_for('admin_dashboard') }}">Admin Panel</a>
+      <a href="{{ url_for('checkin_page') }}">QR Check-in</a>
+      <a href="{{ url_for('admin_logout') }}" class="nav-logout">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/>
+        </svg>
+        Logout
+      </a>
+    {% else %}
+      <a href="{{ url_for('admin_login') }}" class="btn btn-secondary" style="font-size:13px;padding:6px 14px">Admin Login</a>
+    {% endif %}
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="home-hero">
+  <div class="hero-content">
+    <div class="hero-badge">
+      🎓 College Event System
+    </div>
+    <h1>Discover &amp; Join<br><span>Campus Events</span></h1>
+    <p>
+      Explore, register, and attend the best events with ease.<br>
+      Get your digital QR pass and experience hassle-free entry in seconds.
+    </p>
+  </div> 
+  <div class="hero-graphic">
+    <div class="floating-card card-1">🎤 Tech Talk</div>
+    <div class="floating-card card-2">🏆 Hackathon</div>
+    <div class="floating-card card-3">🎨 Art Fest</div>
+  </div>
+
+</section>
+
+<!-- Events -->
+<div class="home-content">
+  <div class="section-row">
+    <h2>Upcoming Events</h2>
+    <span class="badge badge-primary">{{ events|length }} events</span>
+  </div>
+
+  {% if events %}
+  <div class="events-grid">
+    {% for event in events %}
+    {% set spots_left = event.max_participants - event.registered_count %}
+    {% set pct = [(event.registered_count / event.max_participants * 100), 100]|min|int %}
+    <div class="event-card">
+      <div class="event-card-img" style="background: linear-gradient(90deg,
+        {% if loop.index % 4 == 1 %}#6366F1, #478BFA
+        {% elif loop.index % 4 == 2 %}#22C55E, #16A34A
+        {% elif loop.index % 4 == 3 %}#F59E0B, #EF4444
+        {% else %}#7C3AED, #6366F1{% endif %})"></div>
+
+      <div class="event-card-body">
+        <div class="event-card-top">
+          <div>
+            <div class="event-card-name">{{ event.name }}</div>
+          </div>
+          {% if spots_left <= 0 %}
+            <span class="badge badge-full">Full</span>
+          {% elif spots_left <= 10 %}
+            <span class="badge badge-upcoming">{{ spots_left }} left</span>
+          {% else %}
+            <span class="badge badge-active">Open</span>
+          {% endif %}
+        </div>
+
+        {% if event.description %}
+        <div class="event-card-desc">{{ event.description[:100] }}{% if event.description|length > 100 %}...{% endif %}</div>
+        {% endif %}
+
+        <div class="event-card-meta">
+          <div class="meta-row">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
+            </svg>
+            {{ event.date }}
+          </div>
+          <div class="meta-row">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+            </svg>
+            {{ event.time }}
+          </div>
+          <div class="meta-row">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+              <circle cx="12" cy="9" r="2.5"/>
+            </svg>
+            {{ event.venue }}
+          </div>
+        </div>
+
+        <div class="progress-row">
+          <span class="progress-label">{{ event.registered_count }} registered</span>
+          <div class="progress-bar"><div class="progress-fill" style="width:{{ pct }}%"></div></div>
+          <span class="progress-label">{{ event.max_participants }}</span>
+        </div>
+
+        {% if spots_left > 0 %}
+          <a href="{{ url_for('register', event_id=event.id) }}" class="btn btn-primary btn-full" style="margin-top:14px">
+            View Details &amp; Register
+          </a>
+        {% else %}
+          <button class="btn btn-full" style="margin-top:14px;background:var(--surface2);color:var(--text-2);border:1px solid var(--border);cursor:not-allowed" disabled>
+            Registration Closed
+          </button>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-icon">📭</div>
+    <h3>No events available</h3>
+    <p>Check back soon or contact your event coordinator.</p>
+  </div>
+  {% endif %}
+</div>
+
+<footer>© 2024 EventHub — College Event Management System</footer>
+{% endblock %}

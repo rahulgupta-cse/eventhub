@@ -1,0 +1,95 @@
+{% extends "admin_base.html" %}
+{% block title %}{{ action }} Event — EventHub{% endblock %}
+{% block topbar_title %}{{ action }} Event{% endblock %}
+
+{% block content %}
+
+<div class="breadcrumb">
+  <a href="{{ url_for('admin_dashboard') }}">Dashboard</a>
+  <span class="sep">›</span>
+  <span class="current">{{ action }} Event</span>
+</div>
+
+<div class="page-header">
+  <div>
+    <h1>{{ action }} Event</h1>
+    <p>{% if action == 'Create' %}Set up a new campus event for students to register{% else %}Update the details of this event{% endif %}</p>
+  </div>
+</div>
+
+<div class="event-form-wrap">
+  <div class="card">
+    <div class="card-header">
+      <h2>Event Details</h2>
+    </div>
+    <div class="card-body" style="padding:28px">
+      <form method="POST">
+
+        <div class="form-group">
+          <label class="form-label">Event Name *</label>
+          <input type="text" name="name" class="form-control"
+                 value="{{ event.name if event else '' }}"
+                 placeholder="e.g. Annual Tech Hackathon 2024" required/>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Description</label>
+          <textarea name="description" class="form-control" rows="3"
+                    placeholder="Brief description of the event...">{{ event.description if event else '' }}</textarea>
+          <span class="form-hint">Optional — helps students know what to expect</span>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Date *</label>
+            <input type="date" name="date" class="form-control"
+                   value="{{ event.date if event else '' }}" required/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Time *</label>
+            <input type="time" name="time" class="form-control"
+                   value="{{ event.time if event else '' }}" required/>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Venue *</label>
+            <input type="text" name="venue" class="form-control"
+                   value="{{ event.venue if event else '' }}"
+                   placeholder="e.g. Main Auditorium, Building A" required/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Max Participants *</label>
+            <input type="number" name="max_participants" class="form-control" min="1"
+                   value="{{ event.max_participants if event else '' }}"
+                   placeholder="e.g. 200" required/>
+            <span class="form-hint">Maximum number of students that can register</span>
+          </div>
+        </div>
+
+        <div style="height:8px"></div>
+
+        <div style="display:flex;gap:10px;justify-content:flex-end">
+          <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary btn-lg">Cancel</a>
+          <button type="submit" class="btn btn-primary btn-lg">
+            {% if action == 'Create' %}
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path d="M12 5v14M5 12h14"/>
+            </svg>
+            Create Event
+            {% else %}
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v13a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>
+            </svg>
+            Save Changes
+            {% endif %}
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
