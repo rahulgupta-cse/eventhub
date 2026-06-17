@@ -7,7 +7,13 @@ from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
 from reportlab.lib.units import inch
 from functools import wraps
+import os
 
+app = Flask(__name__)
+app.secret_key = os.environ.get(
+    "SECRET_KEY",
+    "eventhub"
+)
 app = Flask(__name__)
 app.secret_key = 'college_event_secret_2024'
 DB_PATH = 'database.db'
